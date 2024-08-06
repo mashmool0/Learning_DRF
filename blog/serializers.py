@@ -17,3 +17,15 @@ class ArticleSerializer(serializers.ModelSerializer):
         model = Article
         fields = ("title", "Text", "description")
         read_only_fields = ['description']
+
+    # def validate_title(self, value):
+    #     if value == "Html":
+    #         raise serializers.ValidationError("You can't choose Html")
+    #     else:
+    #         return value
+
+    def validate(self, attrs):
+        if attrs['title'] == attrs['Text']:
+            raise serializers.ValidationError("title and text can not be same!!!!")
+        return attrs
+

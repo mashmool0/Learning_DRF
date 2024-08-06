@@ -4,6 +4,7 @@ from .models import Article
 from rest_framework.response import Response
 from django.views.generic import TemplateView
 from .serializers import ArticleSerializer
+from rest_framework import status
 
 
 # Create your views here.
@@ -21,7 +22,9 @@ class AddArticleView(APIView):
         serializer = ArticleSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({"message": "Added"})
+            return Response({"message": "Added"}, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors)
 
 
 class UpdateArticleView(APIView):
@@ -36,11 +39,12 @@ class UpdateArticleView(APIView):
             return Response(ser.error_messages)
 
     def delete(self, request, pk):
-        if Article.objects.filter(id=pk).exists() :
+        if Article.objects.filter(id=pk).exists():
             instance = Article.objects.get(id=pk)
             instance.delete()
             return Response({"message": "Deleted"})
-        else : return Response({"message":"We dont have this Article id in data base"})
+        else:
+            return Response({"message": "We dont have this Article id in data base"})
 
 
 def blog_view(request):
