@@ -35,6 +35,13 @@ class UpdateArticleView(APIView):
         else:
             return Response(ser.error_messages)
 
+    def delete(self, request, pk):
+        if Article.objects.filter(id=pk).exists() :
+            instance = Article.objects.get(id=pk)
+            instance.delete()
+            return Response({"message": "Deleted"})
+        else : return Response({"message":"We dont have this Article id in data base"})
+
 
 def blog_view(request):
     article = Article.objects.all()
