@@ -2,14 +2,35 @@ from rest_framework import serializers
 from .models import Article
 
 
+# this is for first method
+# def check_title(value):
+#     if value == "html":
+#         raise serializers.ValidationError("Title can't be html")
+
+
+# this is for second method
+def check_title(data):
+    if data['title'] == "html":
+        raise serializers.ValidationError("title can't be html ! please try another title <3 :) ")
+        # raise serializers.ValidationError({"title Errors":"title can't be html ! please try another title <3 :) "})
+
+
+class CheckTitle:
+
+    def __call__(self, data):
+        if data['title'] == 'html':
+            raise serializers.ValidationError("Error title cant be html")
+
+        # first method
+
+
 # class ArticleSerializer(serializers.Serializer):
-#     title = serializers.CharField(max_length=50)
+#     title = serializers.CharField(max_length=50,validators=[check_title,or CheckTitle])
 #     Text = serializers.CharField(max_length=300)
 #     description = serializers.CharField(max_length=100)
 #
 #     def create(self,validate_data):
 #         return Article.objects.create(**validate_data)
-#
 
 
 class ArticleSerializer(serializers.ModelSerializer):
@@ -17,6 +38,7 @@ class ArticleSerializer(serializers.ModelSerializer):
         model = Article
         fields = ("title", "Text", "description")
         read_only_fields = ['description']
+        validators = [check_title]
 
     # def validate_title(self, value):
     #     if value == "Html":
@@ -29,3 +51,8 @@ class ArticleSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("title and text can not be same!!!!")
         return attrs
 
+
+class ArticleSerializerName(serializers.ModelSerializer):
+    class Meta:
+        model = Article
+        fields = ("title",)

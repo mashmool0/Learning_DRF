@@ -3,11 +3,18 @@ from rest_framework.views import APIView
 from .models import Article
 from rest_framework.response import Response
 from django.views.generic import TemplateView
-from .serializers import ArticleSerializer
+from .serializers import ArticleSerializer, ArticleSerializerName
 from rest_framework import status
+from rest_framework.authentication import TokenAuthentication
 
 
 # Create your views here.
+
+class NameBlogsView(APIView):
+    def get(self, request):
+        instance = Article.objects.all()
+        ser = ArticleSerializerName(instance=instance, many=True)
+        return Response(data=ser.data)
 
 
 class ListBlogsView(APIView):
@@ -45,6 +52,14 @@ class UpdateArticleView(APIView):
             return Response({"message": "Deleted"})
         else:
             return Response({"message": "We dont have this Article id in data base"})
+
+
+class CheckToken(APIView):
+    authentication_classes = [TokenAuthentication]
+
+    def get(self, request):
+        user = request.user
+        return Response({"user": user.username}, status=status.HTTP_200_OK)
 
 
 def blog_view(request):
