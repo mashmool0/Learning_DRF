@@ -47,8 +47,10 @@ class ArticleSerializer(serializers.ModelSerializer):
     #         return value
 
     def validate(self, attrs):
-        if attrs['title'] == attrs['Text']:
-            raise serializers.ValidationError("title and text can not be same!!!!")
+        if "Text" in attrs :
+            if attrs['title'] == attrs['Text']:
+                raise serializers.ValidationError("title and text can not be same!!!!")
+
         return attrs
 
     def create(self, validated_data):

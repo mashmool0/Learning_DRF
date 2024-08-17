@@ -4,6 +4,7 @@ from .models import Article
 from rest_framework.response import Response
 from django.views.generic import TemplateView
 from .serializers import ArticleSerializer, ArticleSerializerName
+from .permissions import BlocklistPermission, IsUserOrReadOnly
 from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
@@ -38,7 +39,7 @@ class ListBlogsView(APIView):
 #             return Response(serializer.errors)
 
 class AddArticleView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [BlocklistPermission]
 
     def post(self, request):
         serializer = ArticleSerializer(data=request.data, context={'request': request})
@@ -53,13 +54,16 @@ class AddArticleView(APIView):
 
 
 class UpdateArticleView(APIView):
+    permission_classes = [IsAuthenticated, IsUserOrReadOnly]
+
     def put(self, request, pk):
         # Set partial to True for change just one element in database
         instance = Article.objects.get(id=pk)
-        ser = ArticleSerializer(instance=instance, data=request.data, partial=True)
+        self.check_object_permissions(request, instance)
+        ser = ArticleSerializer(data=request.data, partial=True)
         if ser.is_valid():
             ser.update(instance, ser.validated_data)
-            return Response({"message": "Changed"})
+            return Response({"message": "Changed"}, status=status.HTTP_200_OK)
         else:
             return Response(ser.error_messages)
 
