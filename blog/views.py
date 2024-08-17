@@ -6,6 +6,7 @@ from django.views.generic import TemplateView
 from .serializers import ArticleSerializer, ArticleSerializerName
 from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
 
 # Create your views here.
@@ -24,10 +25,27 @@ class ListBlogsView(APIView):
         return Response(data=ser.data)
 
 
+# class AddArticleView(APIView):
+#     def post(self, request):
+#         serializer = ArticleSerializer(data=request.data)
+#         if serializer.is_valid():
+#             if request.user.is_authenticated:
+#                 serializer.validated_data['user'] = request.user
+#
+#             serializer.save()
+#             return Response({"message": "Added"}, status=status.HTTP_201_CREATED)
+#         else:
+#             return Response(serializer.errors)
+
 class AddArticleView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request):
-        serializer = ArticleSerializer(data=request.data)
+        serializer = ArticleSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
+            if request.user.is_authenticated:
+                serializer.validated_data['user'] = request.user
+
             serializer.save()
             return Response({"message": "Added"}, status=status.HTTP_201_CREATED)
         else:
